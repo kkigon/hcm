@@ -14,6 +14,7 @@
     "start": "WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext start",
     "test": "pnpm validate:data && pnpm run build && pnpm run build:github && node --test tests/*.test.mjs",
     "validate:data": "node scripts/validate-question-bank.mjs",
+    "tago:check": "node scripts/check-tago-apis.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
   },
   "dependencies": {

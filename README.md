@@ -63,6 +63,8 @@ docs/DATA_PIPELINE.md         전국 문제 자동 생성 설계
 
 전국의 임의 지점을 매일 자동 생성하려면 ODsay 또는 자체 대중교통 그래프가 추가로 필요합니다. 신청 절차와 현실적인 데이터 조합은 [API 설정 가이드](docs/API_SETUP.md), 1km 도보 규칙을 포함한 생성 알고리즘은 [데이터 파이프라인](docs/DATA_PIPELINE.md)에 정리했습니다.
 
+TAGO API 4종을 승인받았다면 인증키를 소스에 넣지 말고 [TAGO 3단계 확인 가이드](docs/TAGO_STEP3.md)에 따라 GitHub Actions에서 연결 검사부터 실행하세요. 네 API가 모두 정상인 것을 확인한 뒤 전국 데이터 수집을 시작합니다.
+
 ## 데이터 표기
 
 - 지도 렌더러: MapLibre GL JS
