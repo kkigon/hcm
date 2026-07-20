@@ -67,6 +67,8 @@ TAGO API 4종을 승인받았다면 인증키를 소스에 넣지 말고 [TAGO 3
 
 네 API 연결이 모두 정상이면 [TAGO → Supabase 정류장 동기화 가이드](docs/TAGO_SUPABASE_SYNC.md)에 따라 대전 도시코드 `25`로 미리보기와 첫 저장을 실행하세요. 저장소에는 도시별 페이징, 정규화, 중복 없는 upsert, PostGIS 위치 인덱스까지 구현되어 있습니다. 서울 `11`은 TAGO 도시별 일괄 정류소 조회에서 0건을 반환하므로 첫 검증용으로 사용하지 않습니다.
 
+대전 정류장 저장이 끝났다면 [TAGO 버스노선 동기화 가이드](docs/TAGO_ROUTE_SYNC.md)를 따라 `transit_services` 테이블을 설치하고 노선 목록·기본정보를 저장하세요. 이 단계가 노선별 경유 정류장 순서와 최소환승 그래프를 만들기 위한 다음 기반입니다.
+
 NAVER Maps 애플리케이션을 등록했다면 [NAVER 지도 연결 가이드](docs/NAVER_MAP_SETUP.md)에 따라 공개 Client ID를 GitHub Actions variable로 등록하세요. Client Secret은 저장소나 GitHub 설정에 넣지 않습니다.
 
 ## 데이터 표기

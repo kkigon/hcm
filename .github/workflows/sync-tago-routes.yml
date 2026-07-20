@@ -1,0 +1,54 @@
+name: Sync TAGO bus routes to Supabase
+
+on:
+  workflow_dispatch:
+    inputs:
+      city_codes:
+        description: "TAGO 도시코드(쉼표 구분). 첫 실행 권장: 25(대전)"
+        required: true
+        default: "25"
+        type: string
+      dry_run:
+        description: "DB에 저장하지 않고 수집 결과만 확인"
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tago-route-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync selected TAGO route catalogs
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Sync TAGO bus routes
+        env:
+          TAGO_SERVICE_KEY: ${{ secrets.TAGO_SERVICE_KEY }}
+          TAGO_CITY_CODES: ${{ inputs.city_codes }}
+          TAGO_SYNC_DRY_RUN: ${{ inputs.dry_run }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: pnpm tago:sync-routes

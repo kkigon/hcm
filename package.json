@@ -16,6 +16,7 @@
     "validate:data": "node scripts/validate-question-bank.mjs",
     "tago:check": "node scripts/check-tago-apis.mjs",
     "tago:sync-stops": "node scripts/sync-tago-stops.mjs",
+    "tago:sync-routes": "node scripts/sync-tago-routes.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
   },
   "dependencies": {

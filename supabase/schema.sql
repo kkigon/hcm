@@ -29,6 +29,29 @@ create index if not exists transit_stops_location_idx
 create index if not exists transit_stops_name_idx
   on public.transit_stops (name);
 
+create table if not exists public.transit_services (
+  source text not null,
+  city_code text not null,
+  local_id text not null,
+  name text not null,
+  mode text not null check (mode in ('bus', 'subway', 'train')),
+  route_type text,
+  start_stop_name text,
+  end_stop_name text,
+  first_vehicle_time text,
+  last_vehicle_time text,
+  interval_weekday_minutes integer check (interval_weekday_minutes >= 0),
+  interval_saturday_minutes integer check (interval_saturday_minutes >= 0),
+  interval_sunday_minutes integer check (interval_sunday_minutes >= 0),
+  is_active boolean not null default true,
+  fetched_at timestamptz not null,
+  created_at timestamptz not null default now(),
+  primary key (source, city_code, local_id)
+);
+
+create index if not exists transit_services_city_name_idx
+  on public.transit_services (city_code, name);
+
 create table if not exists public.game_questions (
   id text primary key,
   minimum_transfers smallint not null check (minimum_transfers between 0 and 20),
@@ -54,10 +77,12 @@ create index if not exists leaderboard_scores_rank_idx
 alter table public.game_questions enable row level security;
 alter table public.leaderboard_scores enable row level security;
 alter table public.transit_stops enable row level security;
+alter table public.transit_services enable row level security;
 
 -- 문제 정답은 브라우저에서 읽을 수 없습니다.
 revoke all on public.game_questions from anon, authenticated;
 revoke all on public.transit_stops from anon, authenticated;
+revoke all on public.transit_services from anon, authenticated;
 
 -- 리더보드는 공개 조회만 허용합니다. 브라우저 직접 INSERT 정책은 만들지 않습니다.
 grant select on public.leaderboard_scores to anon, authenticated;
