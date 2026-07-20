@@ -909,6 +909,11 @@ button:disabled {
   inset: 0;
 }
 
+.game-map__canvas {
+  width: 100%;
+  height: 100%;
+}
+
 .map-loading {
   position: absolute;
   inset: 0;
@@ -2148,4 +2153,3 @@ button:disabled {
     transition-duration: 1ms !important;
   }
 }
-

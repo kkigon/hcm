@@ -48,6 +48,7 @@ test("question bank contains every difficulty and the 1km rule", async () => {
 
 test("map supports NAVER Dynamic Map with an open-map fallback", async () => {
   const source = await readFile(new URL("../app/components/GameMap.tsx", import.meta.url), "utf8");
+  const styles = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
   const workflow = await readFile(new URL("../.github/workflows/deploy-pages.yml", import.meta.url), "utf8");
 
   assert.match(source, /ncpKeyId=/);
@@ -55,6 +56,7 @@ test("map supports NAVER Dynamic Map with an open-map fallback", async () => {
   assert.match(source, /script\.addEventListener\("load"/);
   assert.doesNotMatch(source, /callback=__hcmNaverMapsReady/);
   assert.match(source, /tiles\.openfreemap\.org/);
+  assert.match(styles, /\.game-map__canvas\s*\{[^}]*width:\s*100%;[^}]*height:\s*100%;/s);
   assert.match(workflow, /vars\.VITE_NAVER_MAP_CLIENT_ID/);
   assert.doesNotMatch(source, /Client Secret/);
 });
