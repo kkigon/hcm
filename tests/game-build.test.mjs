@@ -52,6 +52,8 @@ test("map supports NAVER Dynamic Map with an open-map fallback", async () => {
 
   assert.match(source, /ncpKeyId=/);
   assert.match(source, /VITE_NAVER_MAP_CLIENT_ID/);
+  assert.match(source, /script\.addEventListener\("load"/);
+  assert.doesNotMatch(source, /callback=__hcmNaverMapsReady/);
   assert.match(source, /tiles\.openfreemap\.org/);
   assert.match(workflow, /vars\.VITE_NAVER_MAP_CLIENT_ID/);
   assert.doesNotMatch(source, /Client Secret/);

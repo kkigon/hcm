@@ -60,7 +60,6 @@ type NaverWindow = Window &
   typeof globalThis & {
     naver?: { maps: NaverMapsNamespace };
     navermap_authFailure?: () => void;
-    __hcmNaverMapsReady?: () => void;
   };
 
 type OpenBackend = {
@@ -99,7 +98,6 @@ function loadNaverMaps(clientId: string) {
       if (settled) return;
       settled = true;
       window.clearTimeout(timeout);
-      delete naverWindow.__hcmNaverMapsReady;
       if (maps) resolve(maps);
       else {
         naverMapsPromise = null;
@@ -107,10 +105,6 @@ function loadNaverMaps(clientId: string) {
       }
     };
 
-    naverWindow.__hcmNaverMapsReady = () => {
-      const maps = naverWindow.naver?.maps;
-      finish(maps, maps ? undefined : new Error("네이버 지도 SDK 초기화에 실패했습니다."));
-    };
     naverWindow.navermap_authFailure = () => {
       window.dispatchEvent(new Event("hcm:naver-auth-failure"));
       finish(undefined, new Error("네이버 지도 Client ID 또는 Web 서비스 URL 인증에 실패했습니다."));
@@ -119,16 +113,20 @@ function loadNaverMaps(clientId: string) {
     const script = document.createElement("script");
     script.async = true;
     script.dataset.hcmNaverMap = "true";
-    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${encodeURIComponent(clientId)}&callback=__hcmNaverMapsReady`;
+    script.src = `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${encodeURIComponent(clientId)}`;
+    script.addEventListener("load", () => {
+      const maps = naverWindow.naver?.maps;
+      finish(maps, maps ? undefined : new Error("네이버 지도 SDK 초기화에 실패했습니다."));
+    }, { once: true });
     script.addEventListener("error", () => finish(undefined, new Error("네이버 지도 SDK 네트워크 요청에 실패했습니다.")), {
       once: true,
     });
-    document.head.appendChild(script);
 
     timeout = window.setTimeout(
       () => finish(undefined, new Error("네이버 지도 SDK 응답 시간이 초과되었습니다.")),
       15_000,
     );
+    document.head.appendChild(script);
   });
 
   return naverMapsPromise;
