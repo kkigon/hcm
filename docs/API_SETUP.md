@@ -35,17 +35,17 @@ NAVER 지도 API v3는 드래그, 확대/축소, 교통·지형·파노라마, G
 2. **Services → Application Services → Maps → Application**으로 이동합니다.
 3. 새 애플리케이션을 만들고 **Dynamic Map**을 선택합니다. 선택하지 않으면 429 오류가 날 수 있습니다.
 4. Web service URL에 다음을 등록합니다.
-   - `http://localhost:3000`
-   - `https://내아이디.github.io`
-   - 프로젝트 Pages라면 `https://내아이디.github.io/저장소이름/`
-5. 발급된 Client ID를 확인합니다. JavaScript 지도에는 Client ID만 쓰고 Client Secret은 넣지 않습니다.
+   - `http://localhost`
+   - `https://kkigon.github.io`
+   - 포트 번호와 `/hcm` 같은 URI 경로는 제외합니다.
+5. 발급된 Client ID를 확인합니다. JavaScript 지도에는 Client ID만 쓰고 Client Secret은 넣지 않습니다. GitHub에는 Actions repository variable `VITE_NAVER_MAP_CLIENT_ID`로 등록합니다.
 6. SDK는 `https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=CLIENT_ID` 형태로 로드합니다.
 
 등록한 웹 서비스 URL과 실제 페이지 URL이 다르면 인증이 실패합니다. Web Dynamic Map 등의 무료 사용은 대표 계정 정책이 적용되므로 콘솔에서 대표 계정과 현재 요금·쿼터를 반드시 확인하세요.
 
 공식 문서: [Client ID 발급](https://navermaps.github.io/maps.js.ncp/docs/tutorial-1-Getting-Client-ID.html), [Hello World](https://navermaps.github.io/maps.js.ncp/docs/tutorial-2-Getting-Started.html), [NAVER Maps 애플리케이션 등록](https://guide.ncloud-docs.com/docs/en/maps-app)
 
-현재 코드는 무키 실행을 우선해 MapLibre 구현을 배송합니다. NAVER로 교체할 때는 `GameMap.tsx`의 MapLibre `Map/Marker/Popup/GeoJSON source` 부분을 각각 `naver.maps.Map/Marker/InfoWindow/Polyline`로 옮기면 게임 상태 코드는 그대로 유지됩니다.
+현재 코드는 `VITE_NAVER_MAP_CLIENT_ID`가 있으면 NAVER Dynamic Map을 사용하고, 값이 없거나 인증에 실패하면 MapLibre + OpenFreeMap으로 자동 전환합니다. 설정 절차는 [NAVER 지도 연결 가이드](NAVER_MAP_SETUP.md)를 따르세요.
 
 ### 차선책: Kakao Map
 

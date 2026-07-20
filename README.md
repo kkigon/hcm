@@ -16,7 +16,7 @@
 - 도보 구간 1km 이하로 구성된 16개 검증형 데모 문제
 - 데스크톱 20:80 패널과 모바일 상·하 분할 반응형 UI
 
-기본 지도는 API 키가 필요 없는 MapLibre + OpenFreeMap을 사용합니다. 그래서 저장소를 올리는 즉시 게임이 실행됩니다.
+NAVER Web Dynamic Map Client ID를 등록하면 NAVER 지도를 사용합니다. Client ID가 없거나 인증에 실패할 때는 MapLibre + OpenFreeMap으로 자동 전환되므로 지도 없이 게임이 멈추지 않습니다.
 
 ## GitHub Pages에 올리기
 
@@ -65,10 +65,12 @@ docs/DATA_PIPELINE.md         전국 문제 자동 생성 설계
 
 TAGO API 4종을 승인받았다면 인증키를 소스에 넣지 말고 [TAGO 3단계 확인 가이드](docs/TAGO_STEP3.md)에 따라 GitHub Actions에서 연결 검사부터 실행하세요. 네 API가 모두 정상인 것을 확인한 뒤 전국 데이터 수집을 시작합니다.
 
+NAVER Maps 애플리케이션을 등록했다면 [NAVER 지도 연결 가이드](docs/NAVER_MAP_SETUP.md)에 따라 공개 Client ID를 GitHub Actions variable로 등록하세요. Client Secret은 저장소나 GitHub 설정에 넣지 않습니다.
+
 ## 데이터 표기
 
-- 지도 렌더러: MapLibre GL JS
-- 기본 지도 타일: OpenFreeMap / OpenStreetMap contributors
+- 기본 지도: NAVER Web Dynamic Map
+- 대체 지도: MapLibre GL JS + OpenFreeMap / OpenStreetMap contributors
 - 데모 경로: 공개 운행계통을 바탕으로 게임용으로 정규화한 스냅샷
 
 실서비스에서는 노선 개편에 맞춰 문제 팩의 `verifiedLabel`과 경로를 정기적으로 재검증하세요.

@@ -45,3 +45,14 @@ test("question bank contains every difficulty and the 1km rule", async () => {
   assert.match(source, /difficulty: "100"/);
   assert.match(source, /환승 도보 1km 이내/);
 });
+
+test("map supports NAVER Dynamic Map with an open-map fallback", async () => {
+  const source = await readFile(new URL("../app/components/GameMap.tsx", import.meta.url), "utf8");
+  const workflow = await readFile(new URL("../.github/workflows/deploy-pages.yml", import.meta.url), "utf8");
+
+  assert.match(source, /ncpKeyId=/);
+  assert.match(source, /VITE_NAVER_MAP_CLIENT_ID/);
+  assert.match(source, /tiles\.openfreemap\.org/);
+  assert.match(workflow, /vars\.VITE_NAVER_MAP_CLIENT_ID/);
+  assert.doesNotMatch(source, /Client Secret/);
+});

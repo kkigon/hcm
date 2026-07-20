@@ -35,6 +35,8 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build static game
+        env:
+          VITE_NAVER_MAP_CLIENT_ID: ${{ vars.VITE_NAVER_MAP_CLIENT_ID }}
         run: pnpm build:github
 
       - name: Configure Pages
