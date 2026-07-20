@@ -2,6 +2,32 @@
 -- Supabase Dashboard > SQL Editor에서 한 번 실행하세요.
 
 create extension if not exists pgcrypto;
+create schema if not exists extensions;
+create extension if not exists postgis with schema extensions;
+
+create table if not exists public.transit_stops (
+  source text not null,
+  city_code text not null,
+  local_id text not null,
+  name text not null,
+  stop_number text,
+  mode text not null check (mode in ('bus', 'subway', 'train')),
+  latitude double precision not null check (latitude between 30 and 40),
+  longitude double precision not null check (longitude between 120 and 135),
+  location extensions.geography(point, 4326) generated always as (
+    extensions.st_setsrid(extensions.st_makepoint(longitude, latitude), 4326)::extensions.geography
+  ) stored,
+  is_active boolean not null default true,
+  fetched_at timestamptz not null,
+  created_at timestamptz not null default now(),
+  primary key (source, city_code, local_id)
+);
+
+create index if not exists transit_stops_location_idx
+  on public.transit_stops using gist (location);
+
+create index if not exists transit_stops_name_idx
+  on public.transit_stops (name);
 
 create table if not exists public.game_questions (
   id text primary key,
@@ -27,9 +53,11 @@ create index if not exists leaderboard_scores_rank_idx
 
 alter table public.game_questions enable row level security;
 alter table public.leaderboard_scores enable row level security;
+alter table public.transit_stops enable row level security;
 
 -- 문제 정답은 브라우저에서 읽을 수 없습니다.
 revoke all on public.game_questions from anon, authenticated;
+revoke all on public.transit_stops from anon, authenticated;
 
 -- 리더보드는 공개 조회만 허용합니다. 브라우저 직접 INSERT 정책은 만들지 않습니다.
 grant select on public.leaderboard_scores to anon, authenticated;

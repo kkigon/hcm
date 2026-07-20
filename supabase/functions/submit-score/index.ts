@@ -32,6 +32,18 @@ function scoreAnswer(guess: number, answer: number, secondsLeft: number) {
   return accuracy + speed;
 }
 
+function readSupabaseAdminKey() {
+  const direct = Deno.env.get("SUPABASE_SECRET_KEY") ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (direct) return direct;
+
+  try {
+    const keys = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") ?? "{}") as Record<string, string>;
+    return keys.default ?? Object.values(keys)[0];
+  } catch {
+    return undefined;
+  }
+}
+
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers });
   if (request.method !== "POST") return response({ error: "POST 요청만 지원합니다." }, 405);
@@ -74,10 +86,10 @@ Deno.serve(async (request) => {
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  if (!supabaseUrl || !serviceKey) return response({ error: "서버 설정이 완료되지 않았습니다." }, 500);
+  const adminKey = readSupabaseAdminKey();
+  if (!supabaseUrl || !adminKey) return response({ error: "서버 설정이 완료되지 않았습니다." }, 500);
 
-  const admin = createClient(supabaseUrl, serviceKey, {
+  const admin = createClient(supabaseUrl, adminKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 
