@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       city_codes:
-        description: "TAGO 도시코드(쉼표 구분). 첫 실행 권장: 11"
+        description: "TAGO 도시코드(쉼표 구분). 첫 실행 권장: 25(대전)"
         required: true
-        default: "11"
+        default: "25"
         type: string
       dry_run:
         description: "DB에 저장하지 않고 수집 결과만 확인"

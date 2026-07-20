@@ -1,7 +1,13 @@
 import { appendFile } from "node:fs/promises";
 import { createClient } from "@supabase/supabase-js";
 import { loadLocalEnv } from "./lib/tago-client.mjs";
-import { chunkRows, fetchTagoStopsForCity, normalizeTagoStop, parseCityCodes } from "./lib/tago-sync.mjs";
+import {
+  assertEveryCityHasStops,
+  chunkRows,
+  fetchTagoStopsForCity,
+  normalizeTagoStop,
+  parseCityCodes,
+} from "./lib/tago-sync.mjs";
 
 await loadLocalEnv();
 
@@ -46,7 +52,8 @@ for (const cityCode of cityCodes) {
   }
 
   summaries.push({ cityCode, received: fetched.items.length, saved: unique.length, skipped, requests: fetched.requestCount });
-  console.log(`✅ ${cityCode}: ${unique.length.toLocaleString()}개 ${dryRun ? "정규화" : "저장"} (${fetched.requestCount}회 호출, 제외 ${skipped}개)`);
+  const status = unique.length > 0 ? "✅" : "❌";
+  console.log(`${status} ${cityCode}: ${unique.length.toLocaleString()}개 ${dryRun ? "정규화" : "저장"} (${fetched.requestCount}회 호출, 제외 ${skipped}개)`);
 }
 
 const totalSaved = summaries.reduce((sum, result) => sum + result.saved, 0);
@@ -65,4 +72,5 @@ const markdown = [
 ].join("\n");
 
 if (process.env.GITHUB_STEP_SUMMARY) await appendFile(process.env.GITHUB_STEP_SUMMARY, markdown, "utf8");
+assertEveryCityHasStops(summaries);
 console.log(`완료: 총 ${totalSaved.toLocaleString()}개, TAGO ${totalRequests.toLocaleString()}회 호출`);

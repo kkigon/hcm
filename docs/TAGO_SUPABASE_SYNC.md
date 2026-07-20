@@ -2,7 +2,7 @@
 
 TAGO API 4종 연결 검사가 모두 성공했다면, 다음 목표는 API를 게임 브라우저에서 직접 호출하는 것이 아니라 관리자 배치가 정류장 스냅샷을 Supabase에 저장하게 만드는 것입니다.
 
-첫 실행은 서울 도시코드 `11` 하나로 검증합니다. 전국 코드를 한 번에 넣지 마세요. TAGO 개발계정은 API별 일일 호출 한도가 있으므로 도시별로 나눠 동기화하는 편이 안전합니다.
+첫 실행은 대전 도시코드 `25` 하나로 검증합니다. 실제 검증에서 `25`는 3,076개의 정류장을 반환했지만, 서울 `11`은 TAGO의 도시별 일괄 정류소 조회에서 0건을 반환했습니다. 전국 코드를 한 번에 넣지 마세요. TAGO 개발계정은 API별 일일 호출 한도가 있으므로 도시별로 나눠 동기화하는 편이 안전합니다.
 
 ## 1. Supabase 프로젝트 만들기
 
@@ -35,21 +35,21 @@ GitHub 저장소 `https://github.com/kkigon/hcm`에서 **Settings → Secrets an
 
 `SUPABASE_SECRET_KEY`는 RLS를 우회하는 관리자 키입니다. 코드, Issue, 채팅, GitHub variable, 브라우저용 `VITE_*` 값에 넣으면 안 됩니다. 기존 `service_role` 키도 코드가 호환하지만 새 프로젝트에서는 `sb_secret_...` 키를 권장합니다.
 
-## 4. 서울 데이터로 미리보기 실행하기
+## 4. 대전 데이터로 미리보기 실행하기
 
 1. GitHub 저장소의 **Actions** 탭을 엽니다.
 2. 왼쪽에서 **Sync TAGO bus stops to Supabase**를 선택합니다.
 3. **Run workflow**를 누릅니다.
-4. `city_codes`는 `11`로 둡니다.
+4. `city_codes`는 `25`로 둡니다.
 5. `dry_run`을 체크한 상태로 실행합니다.
 6. 실행이 성공하면 Summary에서 정류장 개수와 TAGO 호출 횟수를 확인합니다.
 
 미리보기는 TAGO 응답을 정규화하지만 DB에는 쓰지 않습니다. 이 단계가 실패하면 Supabase 설정과 무관하므로 TAGO 오류만 먼저 확인합니다.
 
-## 5. 서울 데이터를 실제 저장하기
+## 5. 대전 데이터를 실제 저장하기
 
 1. 같은 워크플로를 다시 실행합니다.
-2. `city_codes`는 `11`로 둡니다.
+2. `city_codes`는 `25`로 둡니다.
 3. 이번에는 `dry_run` 체크를 끕니다.
 4. 성공 후 Supabase **Table Editor → transit_stops**에서 행이 생성됐는지 확인합니다.
 5. 같은 도시를 다시 실행해도 `(source, city_code, local_id)` 기준으로 갱신되며 중복 행은 생기지 않습니다.
@@ -69,7 +69,7 @@ GitHub 저장소 `https://github.com/kkigon/hcm`에서 **Settings → Secrets an
 
 ```dotenv
 TAGO_SERVICE_KEY=일반_인증키_Decoding
-TAGO_CITY_CODES=11
+TAGO_CITY_CODES=25
 TAGO_SYNC_DRY_RUN=true
 SUPABASE_URL=https://YOUR_PROJECT.supabase.co
 SUPABASE_SECRET_KEY=sb_secret_xxx

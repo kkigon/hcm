@@ -10,7 +10,7 @@ export function parseCityCodes(value) {
     .filter(Boolean))];
 
   if (cityCodes.length === 0) {
-    throw new Error("TAGO_CITY_CODES가 없습니다. 예: 서울 11, 대전 25 또는 11,25");
+    throw new Error("TAGO_CITY_CODES가 없습니다. 예: 대전 25 또는 25,21");
   }
   const invalid = cityCodes.find((cityCode) => !/^\d{2,5}$/.test(cityCode));
   if (invalid) throw new Error(`도시코드는 2~5자리 숫자여야 합니다: ${invalid}`);
@@ -81,4 +81,14 @@ export function chunkRows(rows, size = 500) {
   const chunks = [];
   for (let index = 0; index < rows.length; index += size) chunks.push(rows.slice(index, index + size));
   return chunks;
+}
+
+export function assertEveryCityHasStops(summaries) {
+  const emptyCityCodes = summaries.filter((summary) => summary.saved === 0).map((summary) => summary.cityCode);
+  if (emptyCityCodes.length > 0) {
+    throw new Error(
+      `TAGO가 정류장을 반환하지 않은 도시코드가 있습니다: ${emptyCityCodes.join(", ")}. `
+      + "인증 성공과 데이터 제공은 별개입니다. TAGO 제공 도시를 확인하거나 대전 25로 먼저 검증하세요.",
+    );
+  }
 }

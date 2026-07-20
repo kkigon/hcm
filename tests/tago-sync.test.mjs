@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { chunkRows, fetchTagoStopsForCity, normalizeTagoStop, parseCityCodes } from "../scripts/lib/tago-sync.mjs";
+import {
+  assertEveryCityHasStops,
+  chunkRows,
+  fetchTagoStopsForCity,
+  normalizeTagoStop,
+  parseCityCodes,
+} from "../scripts/lib/tago-sync.mjs";
 
 test("TAGO city codes are validated and de-duplicated", () => {
   assert.deepEqual(parseCityCodes("11, 25 11"), ["11", "25"]);
@@ -53,4 +59,12 @@ test("TAGO stop pagination continues until totalCount is collected", async () =>
 test("Supabase upserts are split into bounded chunks", () => {
   assert.deepEqual(chunkRows([1, 2, 3, 4, 5], 2), [[1, 2], [3, 4], [5]]);
   assert.throws(() => chunkRows([1], 0), /1 이상의 정수/);
+});
+
+test("a zero-row TAGO response fails instead of reporting a successful sync", () => {
+  assert.doesNotThrow(() => assertEveryCityHasStops([{ cityCode: "25", saved: 3076 }]));
+  assert.throws(
+    () => assertEveryCityHasStops([{ cityCode: "11", saved: 0 }]),
+    /TAGO가 정류장을 반환하지 않은 도시코드.*11/,
+  );
 });
