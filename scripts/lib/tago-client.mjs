@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 
-const DEFAULT_TIMEOUT_MS = 15_000;
+const DEFAULT_TIMEOUT_MS = 30_000;
+const DEFAULT_MAX_ATTEMPTS = 3;
 
 export async function loadLocalEnv(path = ".env.local") {
   let source;
@@ -65,7 +66,20 @@ function xmlErrorMessage(source) {
   return messages.join(" · ") || "JSON이 아닌 응답을 받았습니다.";
 }
 
-export async function requestTago({ baseUrl, operation, params = {}, serviceKey, timeoutMs = DEFAULT_TIMEOUT_MS }) {
+function wait(milliseconds) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
+
+export async function requestTago({
+  baseUrl,
+  operation,
+  params = {},
+  serviceKey,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
+  maxAttempts = DEFAULT_MAX_ATTEMPTS,
+  retryDelayMs = 750,
+  fetchImpl = fetch,
+}) {
   const key = normalizeServiceKey(serviceKey);
   if (!key) {
     throw new Error("TAGO_SERVICE_KEY가 없습니다. GitHub Actions secret 또는 .env.local에 일반 인증키(Decoding)를 등록하세요.");
@@ -78,11 +92,28 @@ export async function requestTago({ baseUrl, operation, params = {}, serviceKey,
     if (value !== undefined && value !== null && value !== "") url.searchParams.set(name, String(value));
   }
 
+  const attempts = Math.max(1, Math.trunc(maxAttempts));
   let response;
-  try {
-    response = await fetch(url, { signal: AbortSignal.timeout(timeoutMs) });
-  } catch (error) {
-    throw new Error(`${operation} 호출에 실패했습니다: ${error?.name === "TimeoutError" ? "15초 시간 초과" : "네트워크 오류"}`);
+  let lastNetworkError;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    response = undefined;
+    try {
+      response = await fetchImpl(url, { signal: AbortSignal.timeout(timeoutMs) });
+      const retryableStatus = response.status === 429 || response.status >= 500;
+      if (!retryableStatus || attempt === attempts) break;
+    } catch (error) {
+      lastNetworkError = error;
+      if (attempt === attempts) break;
+    }
+
+    if (retryDelayMs > 0) await wait(retryDelayMs * attempt);
+  }
+
+  if (!response) {
+    const reason = ["TimeoutError", "AbortError"].includes(lastNetworkError?.name)
+      ? `${Math.round(timeoutMs / 1000)}초 시간 초과`
+      : "네트워크 오류";
+    throw new Error(`${operation} 호출에 실패했습니다: ${reason} (${attempts}회 시도)`);
   }
 
   const source = await response.text();
